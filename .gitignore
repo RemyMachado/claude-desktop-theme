@@ -1,0 +1,7 @@
+# Build outputs - regenerate with `python3 generate.py`
+claude-theme.css
+titlebar.json
+app.patched.asar
+
+__pycache__/
+*.pyc
