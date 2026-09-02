@@ -107,22 +107,29 @@ Verified against Claude Desktop `1.40609.0`. It depends on undocumented internal
 of a frequently-updated closed application, so expect occasional re-derivation;
 the skill documents how.
 
-## This is intrusive
+## What it changes on your system
 
-Two operations deserve your attention:
+Everything is backed up and reversible, and nothing happens without you
+confirming it first. In detail:
 
-1. **Patching the app** replaces `app.asar`, the application's own code archive.
-   It edits executable JavaScript, not a stylesheet — a bad patch means the app
-   will not launch. It is backed up to `app.asar.orig`, `./revert.sh` restores
-   it, and nothing installs without an explicit confirmation.
-2. **Capturing a palette from another app** means reverse-engineering software
-   you did not ask to touch, and can cost hundreds of megabytes of temporary
-   extraction. The skill names the app and asks first, then cleans up.
+**The app archive.** Theming means replacing `app.asar`, which holds the
+application's code. The original is copied to `app.asar.orig` before anything is
+written, and `./revert.sh` puts it back. The build verifies the archive before it
+is installed — every entry present, only the injected file changed, all hashes
+matching — and refuses to hand over anything it cannot prove sound.
 
-Also worth knowing: the user script is arbitrary JavaScript running inside an
-authenticated Claude session. That is what makes non-CSS surfaces reachable, and
-it is a real security surface. Read `claude-theme.js` before installing, as you
-would any userscript.
+**Root access**, once, for that copy. The injected files themselves live in the
+skill directory and are read at runtime, so later colour changes need nothing
+privileged.
+
+**Reading another app**, only if you ask for it. Capturing a palette from
+something already installed means unpacking it, which can use a few hundred
+megabytes temporarily. The skill names the app first and cleans up after.
+
+One thing worth understanding rather than glossing: the user script is
+JavaScript that runs inside your authenticated Claude session. That is what makes
+non-CSS surfaces reachable at all. It ships inert — read `claude-theme.js` before
+installing, as you would any userscript.
 
 ## Contributing
 
