@@ -1,6 +1,6 @@
 {
   "_name": "Ocean",
-  "_source": "Palette from t3code's built-in Ocean theme (OCEAN_THEME in packages/shared/src/themePalettes.ts). Included as a worked example of the capture workflow in docs/capturing-a-palette.md. Credit to the t3code authors; not affiliated.",
+  "_source": "Palette from t3code's built-in Ocean theme (OCEAN_THEME in packages/shared/src/themePalettes.ts) - https://github.com/pingdotgg/t3code. Included as a worked example of the capture workflow in docs/capturing-a-palette.md. Credit to the t3code authors; not affiliated.",
   "_roles_used": "21 of these 57 roles are referenced by binding.json; the rest came with the source palette and are harmless.",
   "light": {
     "canvas": "oklch(0.974199 0.002856 241.597)",

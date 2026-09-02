@@ -15,7 +15,7 @@ it at a theme you already have, and it maps, applies, and reapplies after update
 
 <img src="docs/screenshot-sidebar.png" width="300" alt="The themed sidebar">
 
-<sub>Ocean theme from t3code — chat surfaces, code blocks, sidebar and activity dots</sub>
+<sub>Ocean theme from <a href="https://github.com/pingdotgg/t3code">t3code</a> — chat surfaces, code blocks, sidebar and activity dots</sub>
 
 </div>
 
@@ -23,28 +23,42 @@ it at a theme you already have, and it maps, applies, and reapplies after update
 
 ## Install
 
-Clone into your Claude Code skills directory:
+Paste this to any coding agent:
+
+```
+Install the Claude Desktop theming skill from
+https://github.com/RemyMachado/claude-desktop-theme
+
+Clone it into ~/.claude/skills/claude-desktop-theme (or .claude/skills/ in this
+project), read its SKILL.md, then run it. It will ask what I want the app to
+look like before changing anything.
+```
+
+<details>
+<summary>Or do it by hand</summary>
 
 ```bash
 git clone https://github.com/RemyMachado/claude-desktop-theme \
   ~/.claude/skills/claude-desktop-theme
 ```
 
-Or scope it to a single project:
+Scope it to a single project instead:
 
 ```bash
 git clone https://github.com/RemyMachado/claude-desktop-theme \
   .claude/skills/claude-desktop-theme
 ```
 
-Then invoke it — `/claude-desktop-theme` — or just ask Claude Code to theme your
-Claude Desktop. It introduces itself, shows you what it is about to run, and
-waits before anything touches your system.
+Then invoke it — `/claude-desktop-theme` — or ask Claude Code to theme your
+Claude Desktop.
+
+</details>
+
+The skill introduces itself, shows you what it is about to run, and waits before
+anything touches your system.
 
 **Requirements:** `python3`, `node` (optional — used for a syntax check), and
 `pkexec` or `sudo`.
-
----
 
 ## How it works
 
@@ -83,7 +97,8 @@ python3 generate.py --theme ocean
 ```
 
 `ocean` is included as a **worked example**. Its palette comes from
-[t3code](https://t3.chat)'s theme of the same name, credited in the file — it
+[t3code](https://github.com/pingdotgg/t3code)'s theme of the same name, credited
+in the file — it
 demonstrates the capture workflow, not a recommendation. Most people bring their
 own.
 

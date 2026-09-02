@@ -10,7 +10,7 @@ you will read, and clean up afterwards.
 
 ## Worked example: t3code's Ocean
 
-t3code ships as an AppImage. The palette turned out to be a plain TypeScript
+[t3code](https://github.com/pingdotgg/t3code) ships as an AppImage. The palette turned out to be a plain TypeScript
 object, reachable in four steps:
 
 ```bash
