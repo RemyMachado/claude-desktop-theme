@@ -23,7 +23,10 @@ it at a theme you already have, and it maps, applies, and reapplies after update
 
 ## Install
 
-Paste this to any coding agent:
+### With an agent
+
+Hand this to Claude Code, or any coding agent with filesystem access — it will
+clone the repo, install the skill and walk you through theming:
 
 ```
 Install the Claude Desktop theming skill from
@@ -34,28 +37,27 @@ project), read its SKILL.md, then run it. It will ask what I want the app to
 look like before changing anything.
 ```
 
-<details>
-<summary>Or do it by hand</summary>
+### Manual install
+
+Clone it into your Claude Code skills directory, available to every project:
 
 ```bash
 git clone https://github.com/RemyMachado/claude-desktop-theme \
   ~/.claude/skills/claude-desktop-theme
 ```
 
-Scope it to a single project instead:
+Or scope it to a single project:
 
 ```bash
 git clone https://github.com/RemyMachado/claude-desktop-theme \
   .claude/skills/claude-desktop-theme
 ```
 
-Then invoke it — `/claude-desktop-theme` — or ask Claude Code to theme your
-Claude Desktop.
+Then invoke it by name — `/claude-desktop-theme` — or simply ask Claude Code to
+theme your Claude Desktop.
 
-</details>
-
-The skill introduces itself, shows you what it is about to run, and waits before
-anything touches your system.
+Either way, the skill introduces itself, shows you what it is about to run, and
+waits before anything touches your system.
 
 **Requirements:** `python3`, `node` (optional — used for a syntax check), and
 `pkexec` or `sudo`.
