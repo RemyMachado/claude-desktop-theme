@@ -22,9 +22,16 @@ install)
   grep -qa 'ocean-theme injection' "$staged" \
     || { echo "install: staged archive carries no injection" >&2; exit 1; }
 
-  # Back up the pristine archive once per app build. If a backup already exists
-  # the live file is patched, so never overwrite the backup with a patched copy.
-  [[ -f $BACKUP ]] || cp -a "$TARGET" "$BACKUP"
+  # Back up the pristine archive. Decide by CONTENT: if the live archive does
+  # not carry the injection it IS pristine, so (re)create the backup from it -
+  # that refreshes a stale backup left behind by an app update. If it is
+  # already patched, keep the existing backup and never overwrite it.
+  if grep -qa 'ocean-theme injection' "$TARGET"; then
+    [[ -f $BACKUP ]] || { echo "install: target is patched but no backup exists" >&2; exit 1; }
+  else
+    cp -a "$TARGET" "$BACKUP"
+    echo "backed up pristine app.asar ($(stat -c%s "$BACKUP") bytes)"
+  fi
 
   cp "$staged" "$TARGET"
   chmod 644 "$TARGET"

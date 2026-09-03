@@ -7,7 +7,7 @@
     "'tint' = keep the app's own lightness, adopt Ocean's hue, so tokens Ocean has",
     "no equivalent for do not stay warm/grey next to Ocean's cool surfaces."
   ],
-  "verified_against": "1.40609.0",
+  "verified_against": "1.40609.1",
   "source": "t3code Ocean (themePalettes.ts, OCEAN_THEME)",
   "selectors": {
     "dark": [
@@ -118,10 +118,10 @@
       }
     },
     {
-      "_comment": "Ready sits still while running blinks, so it also takes a different hue - the two states stay distinguishable without relying on colour alone. 'awaiting' keeps the warning amber; that signal is worth preserving.",
+      "_comment": "Ready / finished. LITERAL, not a palette role - the Ocean palette has no green. messageAction (#5bd0d6) was used first but is cyan-teal and reads as blue next to the accent, which defeats the point of distinguishing it from 'running'. This is unambiguously green, at the accent's own lightness so it sits in the same family: oklch(0.78 0.20 145).",
       "selector": ".status-dot[data-kind=ready]",
       "declarations": {
-        "background": "messageAction"
+        "background": "#51d75e"
       }
     },
     {

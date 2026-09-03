@@ -87,11 +87,31 @@ def main():
     if not os.path.exists(SRC):
         raise SystemExit(f"{SRC} not found - is claude-desktop installed?")
 
-    # Always build from the pristine archive, so re-applying is idempotent and
-    # injections can never stack. The backup exists whenever a patch is live.
-    src = BACKUP if os.path.exists(BACKUP) else SRC
-    if src == BACKUP:
-        print(f"source: {BACKUP} (the installed archive is already patched)")
+    # Always build from a pristine archive, so re-applying is idempotent and
+    # injections can never stack.
+    #
+    # Decide by CONTENT, not by whether a backup file exists. After an app
+    # update the updater replaces app.asar with a new stock archive and leaves
+    # the old backup behind - trusting the backup's existence would rebuild the
+    # PREVIOUS version and silently downgrade the app on install.
+    live_is_patched = MARKER in asarlib.read_file(SRC, entry_path(SRC))
+    if live_is_patched:
+        if not os.path.exists(BACKUP):
+            raise SystemExit(
+                "the installed archive is patched but app.asar.orig is missing - "
+                "reinstall claude-desktop, then run this again")
+        src = BACKUP
+        print(f"source: {BACKUP} (the installed archive is patched)")
+    else:
+        src = SRC
+        if os.path.exists(BACKUP):
+            # Stale backup from a previous version: the app has been updated
+            # since. The live archive is the pristine one now.
+            live_v = json.loads(asarlib.read_file(SRC, "/package.json")).get("version")
+            back_v = json.loads(asarlib.read_file(BACKUP, "/package.json")).get("version")
+            if live_v != back_v:
+                print(f"note: app updated {back_v} -> {live_v}; "
+                      f"app.asar.orig is stale and will be refreshed on install")
 
     entry = entry_path(src)
     print(f"entry point (from package.json): {entry}")

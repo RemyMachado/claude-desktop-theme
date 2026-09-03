@@ -120,7 +120,7 @@ rejected there. That is two extra steps rather than a wall — recompute the hea
 hash (already implemented) and write it where the platform expects, plus an
 ad-hoc re-sign on macOS.
 
-Verified against Claude Desktop `1.40609.0`. It depends on undocumented internals
+Verified against Claude Desktop `1.40609.1`. It depends on undocumented internals
 of a frequently-updated closed application, so expect occasional re-derivation;
 the skill documents how.
 
