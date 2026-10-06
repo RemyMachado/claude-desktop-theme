@@ -87,6 +87,9 @@ You say what you want it to look like. The skill maps it, then tells you which
 roles your palette did not cover and asks whether to leave those alone or derive
 them from the colours you did give.
 
+It also asks once what size you want the chat text — Claude's own Large setting
+is only about 15px — and remembers the answer.
+
 It never silently invents values, and it never reduces what is customisable —
 derivation fills gaps, it is not a cap.
 
@@ -107,6 +110,19 @@ own.
 [**docs/capturing-a-palette.md**](docs/capturing-a-palette.md) walks through
 lifting an exact palette out of another installed app, which is how `ocean` was
 made.
+
+## Text size
+
+The chat text size is set in pixels in a local `settings.json` (not tracked):
+
+```json
+{ "chat_text_size": 18 }
+```
+
+Run `python3 generate.py` and restart the app — no reinstall and no password,
+since the stylesheet is read from disk on every launch. Remove the key to go
+back to Claude's own sizes. SKILL.md's *Chat text size* section explains which
+layers it has to override and why.
 
 ## Platform
 
@@ -162,9 +178,10 @@ Issues and PRs welcome, particularly:
 
 ### Good first issues
 
-- **Font sizes.** The skill only asks about colour. It could equally prompt for
-  type sizes — the app exposes `--cds-font-size-*` and a `chatTextSize`
-  preference.
+- **More font sizes.** The chat text size is covered; the sidebar, the
+  composer and code blocks still use the app's own sizes. The same
+  knob-and-derive pattern in `binding.json`'s `chat_text_size` would extend to
+  them.
 - **Derive the baked values.** Ten hard-coded hex values in `binding.json` (the
   retinted greys, the text ladder, the code chip) survive a palette swap
   silently. They should be expressions over palette roles.

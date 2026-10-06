@@ -10,7 +10,9 @@ colour palette to it properly.
 
 The palette is data: `themes/*.json` maps ~21 semantic roles to colours, and
 `binding.json` maps those roles onto the app's ~131 customisation points. The
-theme currently installed is whichever `--theme` was last generated.
+theme currently installed is whichever `--theme` was last generated. The one
+non-colour choice, the chat text size, is the user's and lives in the local,
+untracked `settings.json` - see [Chat text size](#chat-text-size).
 
 `themes/ocean.json` is included as a **worked example** - its palette comes from
 t3code's theme of the same name, credited in the file. Do not assume it is what
@@ -86,7 +88,8 @@ in your own words:
 > app's archive and needs root, so I'll show you the exact command and wait for
 > your go-ahead first.
 
-Then run steps 1–2 straight through without pausing.
+Then run step 1, ask the one question in step 1b, and run step 2 straight
+through.
 
 ### 1. Check what the app is running
 
@@ -98,6 +101,18 @@ Compare the reported version against `verified_against` in `binding.json`. If
 they differ, note it — the bindings may need re-deriving (see
 [When generate.py warns](#when-generatepy-warns)), but a mismatch alone is not a
 problem.
+
+### 1b. Confirm the chat text size
+
+Read `settings.json`. If it sets `chat_text_size`, say what it is and keep it -
+do not re-ask on every reapply. If the file or the key is missing, ask once:
+
+> Claude's chat text is fairly small - about 15px even on its Large setting. Do
+> you want a specific size (17-18px reads comfortably), or keep the app's own?
+
+Write their answer as `{"chat_text_size": <px>}` to `settings.json`; "keep the
+app's" means leave the key out. A number in px is all that is needed - see
+[Chat text size](#chat-text-size) for what it drives.
 
 ### 2. Regenerate the stylesheet
 
@@ -216,7 +231,8 @@ Only the final install is privileged, and it is isolated in `_root-helper.sh`.
 | File | Owns | Changes when |
 |---|---|---|
 | `themes/*.json` | Palettes: semantic role -> colour, light/dark, in OKLCH | The user wants different colours |
-| `binding.json` | Which Claude token each Ocean role drives | Claude Desktop renames or restructures its tokens |
+| `binding.json` | Which Claude token each Ocean role drives, and how the chat text size is reached | Claude Desktop renames or restructures its tokens |
+| `settings.json` | The user's non-colour choices (`chat_text_size` in px). Local and untracked; absent means app defaults | The user wants a different text size |
 | `generate.py` | Rendering one from the other | Rarely |
 | `colour.py` | OKLCH ↔ sRGB ↔ HSL maths | Never |
 | `app_tokens.py` | Reading the installed build's stylesheet for token names | The app moves its assets |
@@ -383,6 +399,12 @@ marked as derived - do not invent them at render time and lose the provenance.
 Derive by relating to roles they did give: a surface one step off `canvas`, a
 muted text between `text` and the background, an accent hue rotated from theirs.
 
+### 3b. Ask about the text size
+
+If `settings.json` sets no `chat_text_size`, ask as in
+[step 1b](#1b-confirm-the-chat-text-size). A new palette is a natural moment to
+fix the size too.
+
 ### 4. Never reduce what is customisable
 
 Every one of the ~131 customisation points stays individually addressable
@@ -407,7 +429,8 @@ Check this before promising the user anything.
 | Main content, sidebar, panels, popovers | `hex_pins` + `element_pins` |
 | Window controls (minimise/maximise/close) | `titlebar.json` via `setTitleBarOverlay` |
 | Activity dots | `rules` - see states below |
-| Inline code chips | `raw_rules`, t3code's exact values |
+| Inline code chips | `raw_rules`, t3code's values at a larger size |
+| Chat text size | `chat_text_size` in `binding.json`, driven by `settings.json` - see [Chat text size](#chat-text-size) |
 | Assistant text hierarchy | `rules` on `.prose` |
 | Greys, borders, stray hardcoded colours | `ramp_tints`, `triplet_tints`, `rules` |
 
@@ -584,6 +607,65 @@ of after a restart, and it is how the sidebar and dot rules were confirmed:
 Steps smaller than ~5% OKLCH lightness are **not perceptible** - move in
 visible jumps or a restart is wasted.
 
+## Chat text size
+
+The app's own Text size setting (Settings -> Appearance: Small / Medium /
+Large) tops out low: at Large, message text renders at **15px**, not the 16px
+its stylesheet suggests. `settings.json` replaces it with an exact size:
+
+```json
+{ "chat_text_size": 18 }
+```
+
+**Changing the size needs no `apply.sh` and no password.** The injection reads
+`claude-theme.css` from this directory on every `dom-ready`, so a size change is:
+
+```bash
+cd "$SKILL_DIR" && python3 generate.py     # prints "chat text size: 18px"
+```
+
+then a restart of the app. `apply.sh` is only for the archive itself (first
+install, or after an app update). To go back to the app's own sizes, remove the
+key and regenerate.
+
+### How it is reached
+
+Two layers each set their own size, and **both** must be overridden - this
+cost two failed restarts to establish:
+
+1. **The transcript container**, `.epitaxy-transcript-typography`, declares
+   `--chat-body` (13 / 14 / 16px for Small / Medium / Large, from
+   `[data-chat-text-size]` on `<html>`). Tool calls and status lines use it.
+2. **Each message**, `[data-cds=AssistantMessage]` / `[data-cds=UserMessage]`,
+   re-declares `--chat-body` and its own `--cds-font-size-prose*`,
+   `--cds-font-size-body` and `--cds-font-size-heading` tokens. Message text
+   reads *these*, so overriding only the container changes the gaps between
+   rows and leaves every paragraph exactly where it was.
+
+`generate.py` emits one knob, `--theme-chat-text: <px>` on `body`, and the
+rules in `binding.json`'s `chat_text_size` derive everything from it: the
+container's `--chat-body`, and on each message the prose/body sizes plus the
+smaller (x .9333) and larger (x 1.0667) steps in the app's own Large-setting
+ratios. **The app's line heights are fixed rem values**, so the rules rebuild
+them from the sizes too (x 1.43-1.5) - otherwise larger text overlaps.
+
+Nothing is emitted when no size is set: the derived rules reference the knob,
+and an undefined knob would make every one of those tokens invalid.
+
+The stylesheet is inserted with `cssOrigin: "user"`, so its `!important` beats
+the page's own declarations whatever their specificity; the rules need no
+selector tricks. Inline code chips keep their own fixed size (`raw_rules`).
+
+### If an update breaks it
+
+The symptom is a size change that moves the spacing but not the text - a new
+layer re-declaring the tokens. Probe it (see
+[Answering DOM questions](#answering-dom-questions-without-asking-the-user)):
+take a `.prose p`, walk up its ancestors, and record each one's computed
+`font-size`, `--chat-body` and `--cds-font-size-prose`. The element where the
+values change from the knob's to the app's is the one the rules must also
+target.
+
 ## Where each thing is actually styled
 
 Four independent channels. Knowing which one owns a surface is most of the work.
@@ -651,7 +733,8 @@ Resolved through the example palette, not invented:
 
 - inline code chip - `.chat-markdown :not(pre)>code`: background `--muted`
   `#233544`, border `--contrast-border` `#405567`, text `--foreground`
-  `#fffaff`, radius `.375rem`, padding `.1rem .35rem`, font-size `.75rem`
+  `#fffaff`, radius `.375rem`, padding `.1rem .35rem` (t3code's font-size
+  `.75rem` is raised to `.875rem` - it reads too small beside Claude's body text)
 - code block surface - `--code-background` `#252e38`
 
 ## Mapping notes worth keeping

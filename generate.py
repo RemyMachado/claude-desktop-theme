@@ -185,7 +185,32 @@ def raw_blocks(binding, mode, prefix):
     return out
 
 
-def render(palettes, binding, app_modes, version, warnings):
+def load_settings():
+    """The user's own choices that are not colours. Optional and local -
+    settings.json is not tracked, so a fresh checkout keeps the app's defaults."""
+    path = os.path.join(HERE, "settings.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf8") as f:
+        return json.load(f)
+
+
+def chat_text_blocks(binding, settings):
+    """The chat text size. Not mode-specific, so emitted once, unprefixed: the
+    stylesheet is user-origin, so its !important already outranks the page.
+    Nothing is emitted unless the user chose a size - the derived rules would
+    otherwise reference an undefined knob and break the app's own sizes."""
+    size = settings.get("chat_text_size")
+    if not size:
+        return []
+    cfg = binding["chat_text_size"]
+    out = [f"/* chat text size: {size}px (settings.json) */",
+           f"body {{\n  {cfg['knob']}: {size}px !important;\n}}"]
+    out += [f"{r['selector']} {{\n{r['css']}\n}}" for r in cfg["rules"]]
+    return out + [""]
+
+
+def render(palettes, binding, settings, app_modes, version, warnings):
     ends = canvas_ends(palettes)
     sel = binding["selectors"]
     out = [
@@ -214,6 +239,7 @@ def render(palettes, binding, app_modes, version, warnings):
         inner += rule_blocks(binding, palette, mode, sys_prefix, warnings)
         inner += raw_blocks(binding, mode, sys_prefix)
         out += [f"@media (prefers-color-scheme: {query}) {{"] + inner + ["}", ""]
+    out += chat_text_blocks(binding, settings)
     return "\n".join(out)
 
 
@@ -235,12 +261,13 @@ def main():
     print(f"theme: {os.path.basename(theme_path)}"
           f"{' - ' + palettes['_name'] if '_name' in palettes else ''}")
     binding = load("binding.json")
+    settings = load_settings()
     _, css = app_tokens.find_stylesheet()
     app_modes = app_tokens.collect(css)
     version = app_tokens.app_version()
 
     warnings = []
-    text = render(palettes, binding, app_modes, version, warnings)
+    text = render(palettes, binding, settings, app_modes, version, warnings)
     with open(args.out, "w", encoding="utf8") as f:
         f.write(text)
 
@@ -261,6 +288,8 @@ def main():
         f.write("\n")
 
     print(f"wrote {args.out} ({len(text)} bytes) for claude-desktop {version}")
+    size = settings.get("chat_text_size")
+    print(f"chat text size: {f'{size}px' if size else 'app default (none set in settings.json)'}")
     print(f"wrote {overlay_path} (window controls: "
           f"{overlay['dark']['color']} / {overlay['dark']['symbolColor']})")
     if version != binding["verified_against"]:

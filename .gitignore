@@ -3,5 +3,8 @@ claude-theme.css
 titlebar.json
 app.patched.asar
 
+# Local user choices that are not colours - see SKILL.md "Chat text size"
+settings.json
+
 __pycache__/
 *.pyc

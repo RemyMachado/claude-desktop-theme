@@ -239,12 +239,28 @@
   ],
   "raw_rules": [
     {
-      "_comment": "Inline code chip, copied from t3code's own rule: .chat-markdown :not(pre)>code { border:1px solid var(--contrast-border); background:var(--muted); color:var(--contrast-foreground); border-radius:.375rem; padding:.1rem .35rem; font-size:.75rem }. Resolved through the Ocean palette: muted #233544, border #405567, foreground #fffaff.",
+      "_comment": "Inline code chip, copied from t3code's own rule: .chat-markdown :not(pre)>code { border:1px solid var(--contrast-border); background:var(--muted); color:var(--contrast-foreground); border-radius:.375rem; padding:.1rem .35rem; font-size:.75rem }. Resolved through the Ocean palette: muted #233544, border #405567, foreground #fffaff. Font size raised to .875rem: t3code's .75rem reads too small next to Claude's body text.",
       "selector": ".ReactMarkdown code, div.ProseMirror>p>code, .epitaxy-root div.ProseMirror :not(pre)>code, :where(.prose) code:not(pre code)",
       "modes": [
         "dark"
       ],
-      "css": "  background-color: #233544 !important;\n  border: 1px solid #405567 !important;\n  color: #fffaff !important;\n  border-radius: 0.375rem !important;\n  padding: 0.1rem 0.35rem !important;\n  font-size: 0.75rem !important;"
+      "css": "  background-color: #233544 !important;\n  border: 1px solid #405567 !important;\n  color: #fffaff !important;\n  border-radius: 0.375rem !important;\n  padding: 0.1rem 0.35rem !important;\n  font-size: 0.875rem !important;"
     }
-  ]
+  ],
+  "chat_text_size": {
+    "_comment": "How the chat's text size is reached. The size itself is the user's choice and lives in settings.json (chat_text_size, in px); generate.py emits these only when it is set. ONE knob, --theme-chat-text, is set on body and every rule below derives from it. Two layers must both be overridden: the transcript container's --chat-body (tool calls, status lines), and the message elements, which RE-DECLARE their own size tokens (at Large the prose landed at 15px) so the container's value never reaches message text. Verified at the app's Large setting; when set, it replaces whichever Text size the app is on.",
+    "knob": "--theme-chat-text",
+    "rules": [
+      {
+        "_comment": "Transcript rows outside messages read --chat-body from the transcript container.",
+        "selector": ".epitaxy-transcript-typography",
+        "css": "  --chat-body: var(--theme-chat-text) !important;"
+      },
+      {
+        "_comment": "Message text. Keeps the app's Large ratios (xs/sm .875, lg/heading 1 against prose .9375). The app's leadings are fixed rem, so they are rebuilt from the sizes or larger text overlaps.",
+        "selector": "[data-cds=AssistantMessage], [data-cds=UserMessage]",
+        "css": "  --chat-body: var(--theme-chat-text) !important;\n  --cds-font-size-body: var(--theme-chat-text) !important;\n  --cds-font-size-prose: var(--theme-chat-text) !important;\n  --cds-font-size-prose--xs: calc(var(--theme-chat-text) * .9333) !important;\n  --cds-font-size-prose--sm: calc(var(--theme-chat-text) * .9333) !important;\n  --cds-font-size-prose--lg: calc(var(--theme-chat-text) * 1.0667) !important;\n  --cds-font-size-heading: calc(var(--theme-chat-text) * 1.0667) !important;\n  --cds-leading-body: calc(var(--cds-font-size-body) * 1.47) !important;\n  --cds-leading-prose: calc(var(--cds-font-size-prose) * 1.47) !important;\n  --cds-leading-prose--xs: calc(var(--cds-font-size-prose--xs) * 1.43) !important;\n  --cds-leading-prose--sm: calc(var(--cds-font-size-prose--sm) * 1.43) !important;\n  --cds-leading-prose--lg: calc(var(--cds-font-size-prose--lg) * 1.5) !important;\n  --cds-leading-heading: calc(var(--cds-font-size-heading) * 1.5) !important;"
+      }
+    ]
+  }
 }

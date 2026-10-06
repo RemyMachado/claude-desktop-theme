@@ -94,5 +94,6 @@ function setCodeTheme(WANT) {
  *   strings -a ~/.config/Claude/Local\\ Storage/leveldb/* | grep -oa '<marker>.*'
  * That needs nothing from the user beyond a restart. Two traps: rgba(0,0,0,0)
  * parses as [0,0,0,0] so a "near-black" test must check alpha; and the message
- * list virtualises, so poll rather than sampling at fixed times.
+ * list virtualises, so poll rather than sampling at fixed times. Chromium
+ * flushes localStorage to disk lazily - expect the value 30-60s after it is set.
  */
